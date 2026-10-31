@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
+from pathlib import Path
 
 # ==============================
 # KONFIGURASI HALAMAN
@@ -13,9 +14,13 @@ st.set_page_config(page_title="Bike Sharing Dashboard", page_icon="🚲", layout
 # ==============================
 @st.cache_data
 def load_data():
-    df = pd.read_csv("main_data.csv")
+    # Menggunakan pathlib untuk membangun path yang dinamis sesuai arahan reviewer
+    current_dir = Path(__file__).parent
+    data_path = current_dir / "main_data.csv"
     
-    # Hanya ubah tipe data tanggal, jangan map ulang cuaca/tahun karena sudah dilakukan di Notebook
+    df = pd.read_csv(data_path)
+    
+    # Hanya ubah tipe data tanggal
     df['dteday'] = pd.to_datetime(df['dteday'])
     
     # Cek apakah kolom demand_category sudah ada. Jika belum, lakukan binning
@@ -49,8 +54,8 @@ if len(date_range) == 2:
     # Terapkan filter pada dataset
     main_df = day_df[(day_df["dteday"].dt.date >= start_date) & (day_df["dteday"].dt.date <= end_date)]
 else:
-    # Jika user baru memilih 1 tanggal
-    st.sidebar.warning("Silakan pilih tanggal akhir rentang waktu.")
+    # Jika user baru memilih 1 tanggal, tampilkan pesan informatif
+    st.sidebar.info("Anda baru memilih satu tanggal. Untuk sementara, dashboard menampilkan seluruh data.")
     main_df = day_df
 
 # ==============================
